@@ -124,6 +124,10 @@ spec:
             {{- end }}
               echo "pulsar cluster {{ template "pulsar.cluster.name" . }} isn't initialized yet ... check in 3 seconds ..." && sleep 3;
             done;
+      {{- if .Values.initContainer.extraEnvs }}
+        env:
+          {{- toYaml .Values.initContainer.extraEnvs | nindent 10 }}
+      {{- end }}
       {{- if and (semverCompare "<1.25-0" .Capabilities.KubeVersion.Version) .Values.rbac.enabled .Values.rbac.psp }}
         securityContext:
           readOnlyRootFilesystem: false
@@ -154,6 +158,10 @@ spec:
               bookieServiceNumber="$(nslookup -timeout=10 {{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }} | grep Name | wc -l)";
             done;
             echo "bookkeeper cluster is ready";
+      {{- if .Values.initContainer.extraEnvs }}
+        env:
+          {{- toYaml .Values.initContainer.extraEnvs | nindent 10 }}
+      {{- end }}
         envFrom:
           - configMapRef:
               name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
@@ -233,10 +241,6 @@ spec:
         - name: "{{ .Values.tlsPrefix }}pulsarssl"
           containerPort: {{ .Values.broker.ports.pulsarssl }}
         {{- end }}
-{{- if .Values.broker.extreEnvs }}
-        env:
-{{ toYaml .Values.broker.extreEnvs | indent 8 }}
-{{- end }}
         envFrom:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
@@ -290,6 +294,9 @@ spec:
               secretKeyRef:
                 name: {{ .Values.broker.storageOffload.secret }}
                 key: AZURE_STORAGE_ACCESS_KEY
+          {{- end }}
+          {{- if .Values.broker.extreEnvs }}
+            {{- toYaml .Values.broker.extreEnvs | nindent 10 }}
           {{- end }}
       volumes:
       {{- if .Values.broker.extraVolumes }}

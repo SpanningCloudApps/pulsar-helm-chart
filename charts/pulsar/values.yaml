@@ -410,6 +410,8 @@ zookeeper:
   pdb:
     usePolicy: true
     maxUnavailable: 1
+  ## Add custom envs to zookeeper pods
+  extraEnvs: []
 
 
 ## Pulsar: Bookkeeper cluster
@@ -428,6 +430,8 @@ bookkeeper:
       # requests:
         # memory: 4Gi
         # cpu: 2
+    ## Additional envs for `bin/bookkeeper shell initnewcluster`
+    extraEnvs: []
   replicaCount: 4
   updateStrategy:
     type: RollingUpdate
@@ -629,6 +633,8 @@ bookkeeper:
   pdb:
     usePolicy: true
     maxUnavailable: 1
+  ## Add custom envs to bookie pods
+  extraEnvs: []
 
 ## Pulsar: Bookkeeper AutoRecovery
 ## templates/autorecovery-statefulset.yaml
@@ -677,6 +683,8 @@ autorecovery:
     BOOKIE_MEM: >
       -Xms64m -Xmx64m
     PULSAR_PREFIX_useV2WireProtocol: "true"
+  ## Add custom envs to autorecovery pods
+  extraEnvs: []
 
 ## Pulsar Zookeeper metadata. The metadata will be deployed as
 ## soon as the last zookeeper node is reachable. The deployment
@@ -1147,6 +1155,8 @@ toolset:
       -XX:MaxDirectMemorySize=128M
   ## Add a custom command to the start up process of the toolset pods (e.g. update-ca-certificates, jvm commands, etc)
   additionalCommand:
+  ## Add custom envs to toolset pods
+  extraEnvs: []
 
 #############################################################
 ### Monitoring Stack : kube-prometheus-stack chart
@@ -1336,3 +1346,4 @@ initContainer:
     requests:
       memory: 256Mi
       cpu: 0.1
+  extraEnvs: []

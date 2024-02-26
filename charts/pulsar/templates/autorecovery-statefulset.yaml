@@ -116,6 +116,10 @@ spec:
         args:
         - >
           {{- include "pulsar.autorecovery.init.verify_cluster_id" . | nindent 10 }}
+        {{- if .Values.initContainer.extraEnvs}}
+        env:
+          {{- toYaml .Values.initContainer.extraEnvs | nindent 10}}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}"
@@ -142,6 +146,10 @@ spec:
         ports:
         - name: http
           containerPort: {{ .Values.autorecovery.ports.http }}
+        {{- if .Values.autorecovery.extraEnvs }}
+        env:
+          {{- toYaml .Values.autorecovery.extraEnvs | nindent 10 }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}"
