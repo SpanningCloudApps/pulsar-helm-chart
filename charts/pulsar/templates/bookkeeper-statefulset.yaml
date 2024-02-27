@@ -118,6 +118,10 @@ spec:
         # only reformat bookie if bookkeeper is running without persistence
         - >
           {{- include "pulsar.bookkeeper.init.verify_cluster_id" . | nindent 10 }}
+        {{- if .Values.initContainer.extraEnvs }}
+        env:
+        {{- toYaml .Values.initContainer.extraEnvs | nindent 10 }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
@@ -177,12 +181,16 @@ spec:
       {{- if and (semverCompare "<1.25-0" .Capabilities.KubeVersion.Version) .Values.rbac.enabled .Values.rbac.psp }}
         securityContext:
           readOnlyRootFilesystem: false
-      {{- end}}
+      {{- end }}
         ports:
         - name: "{{ .Values.tcpPrefix }}bookie"
           containerPort: {{ .Values.bookkeeper.ports.bookie }}
         - name: http
           containerPort: {{ .Values.bookkeeper.ports.http }}
+        {{- if .Values.bookkeeper.extraEnvs }}
+        env:
+        {{- toYaml .Values.bookkeeper.extraEnvs | nindent 10 }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"

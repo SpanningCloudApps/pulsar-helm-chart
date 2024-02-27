@@ -151,6 +151,9 @@ spec:
         {{- else }}
            value: "false"
         {{- end }}
+        {{- if .Values.zookeeper.extraEnvs }}
+          {{- toYaml .Values.zookeeper.extraEnvs  | nindent 9 }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"

@@ -124,6 +124,10 @@ spec:
               sleep 3;
             done;
             {{- end}}
+        {{- if .Values.initContainer.extraEnvs }}
+        env:
+          {{- toYaml .Values.initContainer.extraEnvs | nindent 10 }}
+        {{- end }}
       # This init container will wait for at least one broker to be ready before
       # deploying the proxy
       - name: wait-broker-ready
@@ -140,6 +144,10 @@ spec:
               sleep 10;
               brokerServiceNumber="$(nslookup -timeout=10 {{ template "pulsar.fullname" . }}-{{ .Values.broker.component }} | grep Name | wc -l)";
             done;
+        {{- if .Values.initContainer.extraEnvs }}
+        env:
+          {{- toYaml .Values.initContainer.extraEnvs | nindent 10 }}
+        {{- end }}
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
         image: "{{ template "pulsar.imageFullName" (dict "image" .Values.images.proxy "root" .) }}"
@@ -205,10 +213,10 @@ spec:
         securityContext:
           readOnlyRootFilesystem: false
       {{- end }}
-{{- if .Values.proxy.extreEnvs }}
+      {{- if .Values.proxy.extreEnvs }}
         env:
-{{ toYaml .Values.proxy.extreEnvs | indent 8 }}
-{{- end }}
+          {{- toYaml .Values.proxy.extreEnvs | nindent 10 }}
+      {{- end }}
         envFrom:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"

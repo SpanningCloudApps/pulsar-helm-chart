@@ -52,6 +52,10 @@ spec:
             until nslookup {{ .Values.pulsar_metadata.configurationStore}}; do
               sleep 3;
             done;
+        {{- if .Values.initContainer.extraEnvs }}
+        env:
+          {{- toYaml .Values.initContainer.extraEnvs | nindent 10 }}
+        {{- end }}
       {{- end }}
       - name: wait-zookeeper-ready
         image: "{{ template "pulsar.imageFullName" (dict "image" .Values.pulsar_metadata.image "root" .) }}"
@@ -70,6 +74,10 @@ spec:
               sleep 3;
             done;
             {{- end}}
+        {{- if .Values.initContainer.extraEnvs }}
+        env:
+          {{- toYaml .Values.initContainer.extraEnvs | nindent 10 }}
+        {{- end }}
       # This initContainer will wait for bookkeeper initnewcluster to complete
       # before initializing pulsar metadata
       - name: pulsar-bookkeeper-verify-clusterid
@@ -87,6 +95,10 @@ spec:
           until bin/bookkeeper shell whatisinstanceid; do
             sleep 3;
           done;
+        {{- if .Values.initContainer.extraEnvs }}
+        env:
+          {{- toYaml .Values.initContainer.extraEnvs | nindent 10 }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
@@ -121,6 +133,10 @@ spec:
             {{- if .Values.extraInitCommand }}
               {{ .Values.extraInitCommand }}
             {{- end }}
+        {{- if .Values.toolset.extraEnvs }}
+        env:
+          {{- toYaml .Values.toolset.extraEnvs | nindent 10 }}
+        {{- end }}
         volumeMounts:
         {{- include "pulsar.toolset.certs.volumeMounts" . | nindent 8 }}
       volumes:

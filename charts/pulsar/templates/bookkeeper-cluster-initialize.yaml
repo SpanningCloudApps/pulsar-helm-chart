@@ -61,7 +61,11 @@ spec:
             until nslookup {{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-{{ add (.Values.zookeeper.replicaCount | int) -1 }}.{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}.{{ template "pulsar.namespace" . }}; do
               sleep 3;
             done;
-            {{- end}}
+            {{- end }}
+        {{- if .Values.initContainer.extraEnvs }}
+        env:
+        {{- toYaml .Values.initContainer.extraEnvs | nindent 10 }}
+        {{- end }}
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-init"
         image: "{{ template "pulsar.imageFullName" (dict "image" .Values.images.bookie "root" .) }}"
@@ -90,6 +94,10 @@ spec:
       {{- if and (semverCompare "<1.25-0" .Capabilities.KubeVersion.Version) .Values.rbac.enabled .Values.rbac.psp }}
         securityContext:
           readOnlyRootFilesystem: false
+      {{- end }}
+      {{- if .Values.bookkeeper.metadata.extraEnvs}}
+        env:
+        {{- toYaml .Values.bookkeeper.metadata.extraEnvs | nindent 10 }}
       {{- end }}
         envFrom:
         - configMapRef:
